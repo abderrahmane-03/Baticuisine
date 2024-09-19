@@ -1,6 +1,6 @@
 package org.example.GUI;
-import entities.*;
-import services.*;
+import org.example.entities.*;
+import org.example.services.Imp.*;
 import java.util.Scanner;
 
 public class ConsoleUI {
