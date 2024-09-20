@@ -1,48 +1,61 @@
 package org.example.entities;
 
+public class Client {
+    private int clientId;
+    private String nom;
+    private String adresse;
+    private String telephone;
+    private boolean isProfessional;
 
-    public class Client {
-        private String name;
-        private String address;
-        private String phone;
-        private boolean isProfessional;
-
-        public Client(String name, String address, String phone, boolean isProfessional) {
-            this.name = name;
-            this.address = address;
-            this.phone = phone;
-            this.isProfessional = isProfessional;
-        }
-
-        // Getters and Setters
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public void setAddress(String address) {
-            this.address = address;
-        }
-
-        public boolean isProfessional() {
-            return isProfessional;
-        }
-
-        public void setProfessional(boolean isProfessional) {
-            this.isProfessional = isProfessional;
-        }
-        public void displayClientInfo() {
-            System.out.println("Client: " + name);
-            System.out.println("Address: " + address);
-            System.out.println("Phone: " + phone);
-        }
+    // Constructors
+    public Client(String nom, String adresse, String telephone, boolean isProfessional) {
+        this.nom = nom;
+        this.adresse = adresse;
+        this.telephone = telephone;
+        this.isProfessional = isProfessional;
     }
 
+    // Getters and Setters
+    public int getClientId() {
+        return clientId;
+    }
 
+    public void setClientId(int clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getName() {
+        return nom;
+    }
+
+    public void setName(String nom) {
+        this.nom = nom;
+    }
+
+    public String getAddress() {
+        return adresse;
+    }
+
+    public void setAddress(String adresse) {
+        this.adresse = adresse;
+    }
+
+    public String getPhone() {
+        return telephone;
+    }
+
+    public void setPhone(String telephone) {
+        this.telephone = telephone;
+    }
+
+    public boolean isProfessional() {
+        return isProfessional;
+    }
+
+    public void isProfessional(boolean estProfessionnel) {
+        this.isProfessional = estProfessionnel;
+    }
+    public displayClientInfo(){
+
+    }
+}

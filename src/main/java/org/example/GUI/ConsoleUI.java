@@ -4,107 +4,104 @@ import org.example.services.Imp.*;
 import java.util.Scanner;
 
 public class ConsoleUI {
-    Scanner sc = new Scanner(System.in);
-    ClientService clientService = new ClientService();
-    ProjectService projectService = new ProjectService();
-    MaterialService materialService = new MaterialService();
-    LaborService laborService = new LaborService();
 
+    static ClientService clientService = new ClientService();
+    static ProjectService projectService = new ProjectService();
+    static MaterialService materialService = new MaterialService();
+    static LaborService laborService = new LaborService();
+    public static void run(Scanner sc) {
         System.out.println("=== Bienvenue dans l'application de gestion des projets de rénovation de cuisines ===");
 
         while (true) {
-        System.out.println("=== Menu Principal ===");
-        System.out.println("1. Créer un nouveau projet");
-        System.out.println("2. Afficher les projets existants");
-        System.out.println("3. Calculer le coût d'un projet");
-        System.out.println("4. Quitter");
+            System.out.println("=== Menu Principal ===");
+            System.out.println("1. Créer un nouveau projet");
+            System.out.println("2. Afficher les projets existants");
+            System.out.println("3. Calculer le coût d'un projet");
+            System.out.println("4. Quitter");
+            System.out.print("Choisissez une option : ");
+            int option = sc.nextInt();
+            sc.nextLine(); // Consume newline
+
+            switch (option) {
+                case 1:
+                    createNewProject(sc, clientService, projectService, materialService, laborService);
+                    break;
+                case 2:
+                    projectService.displayAllProjects();
+                    break;
+                case 3:
+                    calculateProjectCost(sc, projectService);
+                    break;
+                case 4:
+                    System.out.println("Au revoir !");
+                    return;  // Exit the loop
+                default:
+                    System.out.println("Option invalide !");
+                    break;
+            }
+        }
+    }
+
+    private static void createNewProject(Scanner sc, ClientService clientService, ProjectService projectService,
+                                         MaterialService materialService, LaborService laborService) {
+        // Client search or creation logic
+        Client client = searchOrAddClient(sc, clientService);
+
+        // Creating new project
+        System.out.println("--- Création d'un Nouveau Projet ---");
+        System.out.print("Entrez le nom du projet : ");
+        String projectName = sc.nextLine();
+
+        Project project = new Project(projectName, client, 0.0);  // Client associé et marge initialisée à 0.0
+
+        // Adding materials
+        addMaterials(sc, project, materialService);
+
+        // Adding labor
+        addLabor(sc, project, laborService);
+
+        projectService.addProject(project);
+        System.out.println("Projet ajouté avec succès avec le client associé !");
+    }
+
+    private static Client searchOrAddClient(Scanner sc, ClientService clientService) {
+        System.out.println("--- Recherche de client ---");
+        System.out.println("Souhaitez-vous chercher un client existant ou en ajouter un nouveau ?");
+        System.out.println("1. Chercher un client existant");
+        System.out.println("2. Ajouter un nouveau client");
         System.out.print("Choisissez une option : ");
-        int option = sc.nextInt();
+        int clientOption = sc.nextInt();
         sc.nextLine(); // Consume newline
 
-        switch (option) {
-            case 1:
-                createNewProject(sc, clientService, projectService, materialService, laborService);
-                break;
-            case 2:
-                projectService.displayAllProjects();
-                break;
-            case 3:
-                calculateProjectCost(sc, projectService);
-                break;
-            case 4:
-                System.out.println("Au revoir !");
-                return;
-            default:
-                System.out.println("Option invalide !");
-                break;
-        }
-    }
-
-
-private static void createNewProject(Scanner sc, ClientService clientService, ProjectService projectService,
-                                     MaterialService materialService, LaborService laborService) {
-    // Client search or creation logic
-    Client client = searchOrAddClient(sc, clientService);
-
-    // Creating new project
-    System.out.println("--- Création d'un Nouveau Projet ---");
-    System.out.print("Entrez le nom du projet : ");
-    String projectName = sc.nextLine();
-    System.out.print("Entrez la surface de la cuisine (en m²) : ");
-    double surface = sc.nextDouble();
-    sc.nextLine(); // Consume newline
-
-    Project project = new Project(projectName, client, 0.0);  // Margin initialized to 0.0, calculated later
-
-    // Adding materials
-    addMaterials(sc, project, materialService);
-
-    // Adding labor
-    addLabor(sc, project, laborService);
-
-    projectService.addProject(project);
-    System.out.println("Projet ajouté avec succès !");
-}
-
-private static Client searchOrAddClient(Scanner sc, ClientService clientService) {
-    System.out.println("--- Recherche de client ---");
-    System.out.println("Souhaitez-vous chercher un client existant ou en ajouter un nouveau ?");
-    System.out.println("1. Chercher un client existant");
-    System.out.println("2. Ajouter un nouveau client");
-    System.out.print("Choisissez une option : ");
-    int clientOption = sc.nextInt();
-    sc.nextLine(); // Consume newline
-
-    if (clientOption == 1) {
-        System.out.println("--- Recherche de client existant ---");
-        System.out.print("Entrez le nom du client : ");
-        String clientName = sc.nextLine();
-        Client client = clientService.findClient(clientName);
-        if (client != null) {
-            System.out.println("Client trouvé !");
-            client.displayClientInfo();
-            System.out.print("Souhaitez-vous continuer avec ce client ? (y/n) : ");
-            String continueWithClient = sc.nextLine();
-            if (continueWithClient.equalsIgnoreCase("y")) {
-                return client;
+        if (clientOption == 1) {
+            System.out.println("--- Recherche de client existant ---");
+            System.out.print("Entrez le nom du client : ");
+            String clientName = sc.nextLine();
+            Client client = clientService.findClient(clientName);
+            if (client != null) {
+                System.out.println("Client trouvé !");
+                client.displayClientInfo();
+                System.out.print("Souhaitez-vous continuer avec ce client ? (y/n) : ");
+                String continueWithClient = sc.nextLine();
+                if (continueWithClient.equalsIgnoreCase("y")) {
+                    return client;
+                }
+            } else {
+                System.out.println("Client non trouvé.");
             }
-        } else {
-            System.out.println("Client non trouvé.");
         }
-    }
 
-    // Add new client
-    System.out.print("Entrez le nom du client : ");
-    String name = sc.nextLine();
-    System.out.print("Entrez l'adresse : ");
-    String address = sc.nextLine();
-    System.out.print("Entrez le numéro de téléphone : ");
-    String phone = sc.nextLine();
-    System.out.print("Est-ce un professionnel? (y/n) : ");
-    boolean isProfessional = sc.nextLine().equalsIgnoreCase("y");
-    return clientService.addClient(name, address, phone, isProfessional);
-}
+        // Ajouter un nouveau client
+        System.out.print("Entrez le nom du client : ");
+        String name = sc.nextLine();
+        System.out.print("Entrez l'adresse : ");
+        String address = sc.nextLine();
+        System.out.print("Entrez le numéro de téléphone : ");
+        String phone = sc.nextLine();
+        System.out.print("Est-ce un professionnel? (y/n) : ");
+        boolean isProfessional = sc.nextLine().equalsIgnoreCase("y");
+        return clientService.addClient(name, address, phone, isProfessional);
+    }
 
 private static void addMaterials(Scanner sc, Project project, MaterialService materialService) {
     System.out.println("--- Ajout des matériaux ---");
@@ -182,4 +179,6 @@ private static void calculateProjectCost(Scanner sc, ProjectService projectServi
     project.calculateTotalCost(vatRate, margin);
     project.displayProjectDetails();
 }
+
+
 }

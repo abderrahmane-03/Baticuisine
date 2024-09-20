@@ -1,21 +1,24 @@
 package org.example.services.Imp;
-import entities.Project;
-import java.util.ArrayList;
+
+import org.example.DAO.Imp.ProjectDAO;
+import org.example.entities.Project;
 
 public class ProjectService {
-    private ArrayList<Project> projects;
+    private final ProjectDAO projectDAO;
 
     public ProjectService() {
-        projects = new ArrayList<>();
+        this.projectDAO = new ProjectDAO();
     }
 
     public void addProject(Project project) {
-        projects.add(project);
+        projectDAO.insert(project);
+    }
+
+    public Project findProject(String projectName) {
+        return projectDAO.findByName(projectName);
     }
 
     public void displayAllProjects() {
-        for (Project project : projects) {
-            project.displayProjectDetails();
-        }
+        projectDAO.findAll().forEach(Project::displayProjectDetails);
     }
 }
