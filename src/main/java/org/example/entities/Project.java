@@ -107,13 +107,19 @@ public class Project {
         this.client = client;
     }
     // Method to recalculate total cost
-    private void recalculateTotalCost() {
+    public void recalculateTotalCost() {
         double totalMaterialsCost = materials.stream()
-                .mapToDouble(material -> material.getCoutUnitaire().doubleValue() * material.getQuantite())
+                .mapToDouble(material -> material.getTotalCost() * material.getQuantite())
                 .sum();
         double totalLaborsCost = labors.stream()
-                .mapToDouble(labor -> labor.getTauxHoraire().doubleValue() * labor.getHeuresTravail())
+                .mapToDouble(labor -> labor.getHourlyRate().doubleValue() * labor.getWorkingHours())
                 .sum();
         this.coutTotal = (totalMaterialsCost + totalLaborsCost) * (1 + this.margeBeneficiaire);
     }
+
+
+    public void displayProjectDetails() {
+        return ;
+    }
+
 }

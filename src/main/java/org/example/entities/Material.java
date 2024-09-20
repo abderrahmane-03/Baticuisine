@@ -17,8 +17,25 @@ public class Material {
         this.qualityCoefficient = qualityCoefficient;
         this.vatRate = vatRate;
     }
+    public String getName() {
+        return name;
+    }
+    public double getUnitCost() {
+        return unitCost;
+    }
+    public double getQualityCoefficient() {
+        return qualityCoefficient;
+    }
+    public double getTransportCost() {
+        return transportCost;
+    }
+    public Double getVatRate() {
+        return vatRate ;
+    }
+    public double getQuantite() {
+        return quantity;
+    }
 
-    // Calculate the cost with quality and transport
     public double getTotalCost() {
         return (unitCost * quantity * qualityCoefficient) + transportCost;
     }

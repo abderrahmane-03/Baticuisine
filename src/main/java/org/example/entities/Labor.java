@@ -8,7 +8,7 @@ public class Labor {
     private double productivityFactor;
     private double vatRate;
 
-    public Labor(String type, double hourlyRate, double hoursWorked, double productivityFactor, double vatRate) {
+    public Labor(String type,double hourlyRate, double hoursWorked, double productivityFactor, double vatRate) {
         this.type = type;
         this.hourlyRate = hourlyRate;
         this.hoursWorked = hoursWorked;
@@ -16,17 +16,35 @@ public class Labor {
         this.vatRate = vatRate;
     }
 
-    public double getTotalCost() {
-        return hourlyRate * hoursWorked * productivityFactor;
-    }
+        public double getTotalCost() {
+            return hourlyRate * hoursWorked * productivityFactor;
+        }
 
-    public double getCostWithVAT() {
-        return getTotalCost() * (1 + vatRate / 100);
-    }
+        public double getCostWithVAT() {
+            return getTotalCost() * (1 + vatRate / 100);
+        }
 
-    // Display method
-    public void displayLaborInfo() {
-        System.out.println(type + ": " + getTotalCost() + "€ (Hours: " + hoursWorked + ")");
-    }
+        public void displayLaborInfo() {
+            System.out.println(type + ": " + getTotalCost() + "€ (Hours: " + hoursWorked + ")");
+        }
+
+
+        public String getType() {
+            return type ;
+        }
+        public Double getProductivityFactor() {
+            return productivityFactor ;
+        }
+        public Double getVatRate() {
+            return vatRate ;
+        }
+
+        public Double getHourlyRate() {
+            return hourlyRate ;
+        }
+
+        public double getWorkingHours() {
+            return hoursWorked ;
+        }
 }
 

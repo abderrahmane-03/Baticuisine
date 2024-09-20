@@ -55,7 +55,12 @@ public class Client {
     public void isProfessional(boolean estProfessionnel) {
         this.isProfessional = estProfessionnel;
     }
-    public displayClientInfo(){
-
+    public void displayClientInfo() {
+        System.out.println("=== Informations sur le client ===");
+        System.out.println("Nom : " + nom);
+        System.out.println("Adresse : " + adresse);
+        System.out.println("Téléphone : " + telephone);
+        System.out.println("Type de client : " + (isProfessional ? "Professionnel" : "Particulier"));
     }
+
 }

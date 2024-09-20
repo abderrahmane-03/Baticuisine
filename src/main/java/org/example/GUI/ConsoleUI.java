@@ -52,7 +52,7 @@ public class ConsoleUI {
         System.out.print("Entrez le nom du projet : ");
         String projectName = sc.nextLine();
 
-        Project project = new Project(projectName, client, 0.0);  // Client associé et marge initialisée à 0.0
+        Project project = new Project(projectName, 0.0,client );
 
         // Adding materials
         addMaterials(sc, project, materialService);
@@ -76,8 +76,8 @@ public class ConsoleUI {
         if (clientOption == 1) {
             System.out.println("--- Recherche de client existant ---");
             System.out.print("Entrez le nom du client : ");
-            String clientName = sc.nextLine();
-            Client client = clientService.findClient(clientName);
+            String name = sc.nextLine();
+            Client client = clientService.findClient(name);
             if (client != null) {
                 System.out.println("Client trouvé !");
                 client.displayClientInfo();
@@ -118,8 +118,8 @@ private static void addMaterials(Scanner sc, Project project, MaterialService ma
         double qualityCoefficient = sc.nextDouble();
         sc.nextLine(); // Consume newline
 
-        Material material = new Material(materialName, unitCost, quantity, transportCost, qualityCoefficient, 0.0);  // VAT applied later
-        project.addMaterial(material);
+        materialService.addMaterial(materialName, unitCost, quantity, transportCost, qualityCoefficient, 0.2);  // VAT applied later
+
 
         System.out.println("Matériau ajouté avec succès !");
         System.out.print("Voulez-vous ajouter un autre matériau ? (y/n) : ");
@@ -138,10 +138,9 @@ private static void addLabor(Scanner sc, Project project, LaborService laborServ
         double hoursWorked = sc.nextDouble();
         System.out.print("Entrez le facteur de productivité (1.0 = standard, > 1.0 = haute productivité) : ");
         double productivityFactor = sc.nextDouble();
-        sc.nextLine(); // Consume newline
+        sc.nextLine();
 
-        Labor labor = new Labor(laborType, hourlyRate, hoursWorked, productivityFactor, 0.0);  // VAT applied later
-        project.addLabor(labor);
+        laborService.addLabor(laborType, hourlyRate, hoursWorked, productivityFactor,0.2);
 
         System.out.println("Main-d'œuvre ajoutée avec succès !");
         System.out.print("Voulez-vous ajouter un autre type de main-d'œuvre ? (y/n) : ");
@@ -165,7 +164,7 @@ private static void calculateProjectCost(Scanner sc, ProjectService projectServi
     if (sc.nextLine().equalsIgnoreCase("y")) {
         System.out.print("Entrez le pourcentage de TVA (%) : ");
         vatRate = sc.nextDouble();
-        sc.nextLine(); // Consume newline
+        sc.nextLine();
     }
 
     System.out.print("Souhaitez-vous appliquer une marge bénéficiaire au projet ? (y/n) : ");
@@ -173,11 +172,10 @@ private static void calculateProjectCost(Scanner sc, ProjectService projectServi
     if (sc.nextLine().equalsIgnoreCase("y")) {
         System.out.print("Entrez le pourcentage de marge bénéficiaire (%) : ");
         margin = sc.nextDouble();
-        sc.nextLine(); // Consume newline
+        sc.nextLine();
     }
 
-    project.calculateTotalCost(vatRate, margin);
-    project.displayProjectDetails();
+    project.recalculateTotalCost();
 }
 
 

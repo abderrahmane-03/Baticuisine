@@ -15,7 +15,7 @@ public class ClientDAO implements ClientDAOInterface {
 
     @Override
     public void insert(Client client) {
-        String query = "INSERT INTO client (name, address, phone, isProfessional) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO client (name, address, phone_number, isProfessional) VALUES (?, ?, ?, ?)";
         try (Connection connection = DBConnection.getConnectionOrThrow();
              PreparedStatement statement = connection.prepareStatement(query)) {
             int count = 1;
@@ -40,7 +40,7 @@ public class ClientDAO implements ClientDAOInterface {
                 return new Client(
                         resultSet.getString("name"),
                         resultSet.getString("address"),
-                        resultSet.getString("phone"),
+                        resultSet.getString("phone_number"),
                         resultSet.getBoolean("isProfessional")
                 );
             }
@@ -61,7 +61,7 @@ public class ClientDAO implements ClientDAOInterface {
                 clients.add(new Client(
                         resultSet.getString("name"),
                         resultSet.getString("address"),
-                        resultSet.getString("phone"),
+                        resultSet.getString("phone_number"),
                         resultSet.getBoolean("isProfessional")
                 ));
             }
