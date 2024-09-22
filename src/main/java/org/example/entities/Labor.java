@@ -7,6 +7,7 @@ public class Labor {
     private double hoursWorked;
     private double productivityFactor;
     private double vatRate;
+    private Project project;
 
     public Labor(String type,double hourlyRate, double hoursWorked, double productivityFactor, double vatRate) {
         this.type = type;
@@ -27,7 +28,13 @@ public class Labor {
         public void displayLaborInfo() {
             System.out.println(type + ": " + getTotalCost() + "€ (Hours: " + hoursWorked + ")");
         }
+        public Project getProject() {
+            return project;
+        }
 
+        public void setProject(Project project) {
+            this.project = project;
+        }
 
         public String getType() {
             return type ;

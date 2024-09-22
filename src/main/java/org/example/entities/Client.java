@@ -9,6 +9,7 @@ public class Client {
 
     // Constructors
     public Client(String nom, String adresse, String telephone, boolean isProfessional) {
+
         this.nom = nom;
         this.adresse = adresse;
         this.telephone = telephone;

@@ -31,18 +31,22 @@ public class ClientDAO implements ClientDAOInterface {
 
     @Override
     public Client findByName(String name) {
+
         String query = "SELECT * FROM client WHERE name = ?";
         try (Connection connection = DBConnection.getConnectionOrThrow();
              PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, name);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                return new Client(
-                        resultSet.getString("name"),
-                        resultSet.getString("address"),
-                        resultSet.getString("phone_number"),
-                        resultSet.getBoolean("isProfessional")
-                );
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    Client client = new Client(
+                            resultSet.getString("name"),
+                            resultSet.getString("address"),
+                            resultSet.getString("phone_number"),
+                            resultSet.getBoolean("isprofessional")
+                    );
+                    client.setClientId(resultSet.getInt("client_id")); // Make sure to set client_id here
+                    return client;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -59,6 +63,7 @@ public class ClientDAO implements ClientDAOInterface {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 clients.add(new Client(
+
                         resultSet.getString("name"),
                         resultSet.getString("address"),
                         resultSet.getString("phone_number"),

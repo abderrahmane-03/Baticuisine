@@ -14,24 +14,35 @@ public class ProjectDAO implements ProjectDAOInterface {
 
     @Override
     public void insert(Project project) {
-        String query = "INSERT INTO project (projectName, clientId, totalCost, beneficiaryMargin, state) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO project (project_name, client_id, surface_area, tva, profit_margin, total_cost, state) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING project_id";
         try (Connection connection = DBConnection.getConnectionOrThrow();
              PreparedStatement statement = connection.prepareStatement(query)) {
             int count = 1;
             statement.setString(count++, project.getName());
-            statement.setInt(count++, project.getClient().getClientId()); // Assuming Client has an ID.
-            statement.setDouble(count++, project.getTotalCost());
+            statement.setInt(count++, project.getClient().getClientId());
+            statement.setDouble(count++, project.getSurface_area());
+            statement.setDouble(count++, 20); // TVA value
             statement.setDouble(count++, project.getBeneficiaryMargin());
+            statement.setDouble(count++, project.getTotalCost());
             statement.setString(count++, project.getState().name());
-            statement.executeUpdate();
+
+            // Use executeQuery to get the returned project_id
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    // Retrieve and set the generated project ID
+                    project.setProjectId(rs.getInt("project_id"));
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
+
 
     @Override
     public Project findByName(String name) {
-        String query = "SELECT * FROM project WHERE projectName = ?";
+        String query = "SELECT * FROM project WHERE project_name = ?";
         try (Connection connection = DBConnection.getConnectionOrThrow();
              PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, name);
@@ -39,12 +50,14 @@ public class ProjectDAO implements ProjectDAOInterface {
                 if (resultSet.next()) {
                     // Retrieve the project data
                     Project project = new Project(
-                            resultSet.getString("projectName"),
-                            resultSet.getDouble("beneficiaryMargin"),
-                             null// You would typically load the client as well
+                            resultSet.getString("project_name"),
+                            resultSet.getDouble("profit_margin"),
+
+                            resultSet.getDouble("surface_area"),
+                            null// You would typically load the client as well
 
                     );
-                    project.setTotalCost(resultSet.getDouble("totalCost"));
+                    project.setTotalCost(resultSet.getDouble("total_cost"));
                     return project;
                 }
             }
@@ -65,6 +78,8 @@ public class ProjectDAO implements ProjectDAOInterface {
                 Project project = new Project(
                         resultSet.getString("projectName"),
                         resultSet.getDouble("beneficiaryMargin"),
+                        resultSet.getDouble("surfaceArea"),
+
                         null// You would typically load the client as well
 
                 );

@@ -9,6 +9,8 @@ public class Material {
     private double qualityCoefficient;
     private double vatRate;
 
+    private Project project;
+
     public Material(String name, double unitCost, double quantity, double transportCost, double qualityCoefficient, double vatRate) {
         this.name = name;
         this.unitCost = unitCost;
@@ -35,7 +37,13 @@ public class Material {
     public double getQuantite() {
         return quantity;
     }
+    public Project getProject() {
+        return project;
+    }
 
+    public void setProject(Project project) {
+        this.project = project;
+    }
     public double getTotalCost() {
         return (unitCost * quantity * qualityCoefficient) + transportCost;
     }

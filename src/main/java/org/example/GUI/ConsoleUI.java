@@ -1,7 +1,12 @@
 package org.example.GUI;
 import org.example.entities.*;
 import org.example.services.Imp.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+
+import static org.example.entities.Project.calculateTotalCost;
 
 public class ConsoleUI {
 
@@ -30,7 +35,7 @@ public class ConsoleUI {
                     projectService.displayAllProjects();
                     break;
                 case 3:
-                    calculateProjectCost(sc, projectService);
+                    calculateProjectCost(sc, projectService, materialService, laborService);
                     break;
                 case 4:
                     System.out.println("Au revoir !");
@@ -47,22 +52,57 @@ public class ConsoleUI {
         // Client search or creation logic
         Client client = searchOrAddClient(sc, clientService);
 
-        // Creating new project
+        // Creating new project in memory (not yet in the database)
         System.out.println("--- Création d'un Nouveau Projet ---");
         System.out.print("Entrez le nom du projet : ");
         String projectName = sc.nextLine();
 
-        Project project = new Project(projectName, 0.0,client );
+        System.out.print("Entrez la surface de la cuisine (en m²) : ");
+        double surfaceArea = sc.nextDouble();
+        sc.nextLine(); // Clear the buffer
 
-        // Adding materials
-        addMaterials(sc, project, materialService);
+        // Create project object but do NOT insert it into the database yet
+        Project project = new Project(projectName, 0.0,surfaceArea,client );
 
-        // Adding labor
-        addLabor(sc, project, laborService);
+        // Adding materials in memory
+        List<Material> materials = addMaterials(sc, materialService);
 
-        projectService.addProject(project);
-        System.out.println("Projet ajouté avec succès avec le client associé !");
+        // Adding labor in memory
+        List<Labor> laborList = addLabor(sc, laborService);
+
+        // Perform cost calculations
+        double totalCost = calculateTotalCost(materials, laborList);
+
+        // Ask for confirmation
+        System.out.println("--- Résultat du Calcul ---");
+        // Display project details, materials, labor, etc.
+        displayProjectSummary(project, materials, laborList, totalCost);
+
+        System.out.print("Souhaitez-vous enregistrer ce projet et les détails associés ? (y/n) : ");
+        if (sc.nextLine().equalsIgnoreCase("y")) {
+            // Insert project into the database
+            projectService.addProject(project);
+
+            // Now insert materials and labor with the project ID
+            for (Material material : materials) {
+                materialService.addMaterial(material.getName(), material.getUnitCost(), material.getQuantite(),
+                        material.getTransportCost(), material.getQualityCoefficient(),
+                        material.getVatRate(), project);
+            }
+
+            for (Labor labor : laborList) {
+                laborService.addLabor(labor.getType(), labor.getHourlyRate(), labor.getWorkingHours(),
+                        labor.getProductivityFactor(), labor.getVatRate(), project); // Pass the project
+            }
+
+
+            System.out.println("Projet ajouté avec succès avec le client associé !");
+        } else {
+            System.out.println("Projet annulé.");
+        }
     }
+
+
 
     private static Client searchOrAddClient(Scanner sc, ClientService clientService) {
         System.out.println("--- Recherche de client ---");
@@ -103,80 +143,107 @@ public class ConsoleUI {
         return clientService.addClient(name, address, phone, isProfessional);
     }
 
-private static void addMaterials(Scanner sc, Project project, MaterialService materialService) {
-    System.out.println("--- Ajout des matériaux ---");
-    while (true) {
-        System.out.print("Entrez le nom du matériau : ");
-        String materialName = sc.nextLine();
-        System.out.print("Entrez la quantité de ce matériau (en m² ou litres) : ");
-        double quantity = sc.nextDouble();
-        System.out.print("Entrez le coût unitaire de ce matériau (€) : ");
-        double unitCost = sc.nextDouble();
-        System.out.print("Entrez le coût de transport de ce matériau (€) : ");
-        double transportCost = sc.nextDouble();
-        System.out.print("Entrez le coefficient de qualité du matériau (1.0 = standard, > 1.0 = haute qualité) : ");
-        double qualityCoefficient = sc.nextDouble();
-        sc.nextLine(); // Consume newline
+    private static List<Material> addMaterials(Scanner sc, MaterialService materialService) {
+        List<Material> materials = new ArrayList<>();
+        System.out.println("--- Ajout des matériaux ---");
+        while (true) {
+            System.out.print("Entrez le nom du matériau : ");
+            String materialName = sc.nextLine();
+            System.out.print("Entrez la quantité de ce matériau (en m² ou litres) : ");
+            double quantity = sc.nextDouble();
+            System.out.print("Entrez le coût unitaire de ce matériau (€) : ");
+            double unitCost = sc.nextDouble();
+            System.out.print("Entrez le coût de transport de ce matériau (€) : ");
+            double transportCost = sc.nextDouble();
+            System.out.print("Entrez le coefficient de qualité du matériau (1.0 = standard, > 1.0 = haute qualité) : ");
+            double qualityCoefficient = sc.nextDouble();
+            sc.nextLine(); // Clear the buffer
 
-        materialService.addMaterial(materialName, unitCost, quantity, transportCost, qualityCoefficient, 0.2);  // VAT applied later
+            Material material = new Material(materialName, unitCost, quantity, transportCost, qualityCoefficient, 0.2);
+            materials.add(material);
 
-
-        System.out.println("Matériau ajouté avec succès !");
-        System.out.print("Voulez-vous ajouter un autre matériau ? (y/n) : ");
-        if (sc.nextLine().equalsIgnoreCase("n")) break;
-    }
-}
-
-private static void addLabor(Scanner sc, Project project, LaborService laborService) {
-    System.out.println("--- Ajout de la main-d'œuvre ---");
-    while (true) {
-        System.out.print("Entrez le type de main-d'œuvre (e.g., Ouvrier de base, Spécialiste) : ");
-        String laborType = sc.nextLine();
-        System.out.print("Entrez le taux horaire de cette main-d'œuvre (€/h) : ");
-        double hourlyRate = sc.nextDouble();
-        System.out.print("Entrez le nombre d'heures travaillées : ");
-        double hoursWorked = sc.nextDouble();
-        System.out.print("Entrez le facteur de productivité (1.0 = standard, > 1.0 = haute productivité) : ");
-        double productivityFactor = sc.nextDouble();
-        sc.nextLine();
-
-        laborService.addLabor(laborType, hourlyRate, hoursWorked, productivityFactor,0.2);
-
-        System.out.println("Main-d'œuvre ajoutée avec succès !");
-        System.out.print("Voulez-vous ajouter un autre type de main-d'œuvre ? (y/n) : ");
-        if (sc.nextLine().equalsIgnoreCase("n")) break;
-    }
-}
-
-private static void calculateProjectCost(Scanner sc, ProjectService projectService) {
-    System.out.println("--- Calcul du coût d'un projet ---");
-    projectService.displayAllProjects();
-    System.out.print("Entrez le nom du projet à calculer : ");
-    String projectName = sc.nextLine();
-    Project project = projectService.findProject(projectName);
-    if (project == null) {
-        System.out.println("Projet non trouvé !");
-        return;
+            System.out.println("Matériau ajouté avec succès !");
+            System.out.print("Voulez-vous ajouter un autre matériau ? (y/n) : ");
+            if (sc.nextLine().equalsIgnoreCase("n")) break;
+        }
+        return materials;
     }
 
-    System.out.print("Souhaitez-vous appliquer une TVA au projet ? (y/n) : ");
-    double vatRate = 0.0;
-    if (sc.nextLine().equalsIgnoreCase("y")) {
-        System.out.print("Entrez le pourcentage de TVA (%) : ");
-        vatRate = sc.nextDouble();
-        sc.nextLine();
+    private static List<Labor> addLabor(Scanner sc, LaborService laborService) {
+        List<Labor> laborList = new ArrayList<>();
+        System.out.println("--- Ajout de la main-d'œuvre ---");
+        while (true) {
+            System.out.print("Entrez le type de main-d'œuvre (e.g., Ouvrier de base, Spécialiste) : ");
+            String laborType = sc.nextLine();
+            System.out.print("Entrez le taux horaire de cette main-d'œuvre (€/h) : ");
+            double hourlyRate = sc.nextDouble();
+            System.out.print("Entrez le nombre d'heures travaillées : ");
+            double hoursWorked = sc.nextDouble();
+            System.out.print("Entrez le facteur de productivité (1.0 = standard, > 1.0 = haute productivité) : ");
+            double productivityFactor = sc.nextDouble();
+            sc.nextLine(); // Clear the buffer
+
+            Labor labor = new Labor(laborType, hourlyRate, hoursWorked, productivityFactor, 0.2);
+            laborList.add(labor);
+
+            System.out.println("Main-d'œuvre ajoutée avec succès !");
+            System.out.print("Voulez-vous ajouter un autre type de main-d'œuvre ? (y/n) : ");
+            if (sc.nextLine().equalsIgnoreCase("n")) break;
+        }
+        return laborList;
     }
 
-    System.out.print("Souhaitez-vous appliquer une marge bénéficiaire au projet ? (y/n) : ");
-    double margin = 0.0;
-    if (sc.nextLine().equalsIgnoreCase("y")) {
-        System.out.print("Entrez le pourcentage de marge bénéficiaire (%) : ");
-        margin = sc.nextDouble();
-        sc.nextLine();
+
+    private static void calculateProjectCost(Scanner sc, ProjectService projectService, MaterialService materialService, LaborService laborService) {
+        // Ask user for the project name or ID to retrieve the project
+        System.out.println("--- Calcul du coût d'un projet ---");
+        System.out.print("Entrez l'ID ou le nom du projet : ");
+        String projectIdentifier = sc.nextLine();
+
+        // Retrieve project by name or ID from the database
+        Project project = projectService.findProject(projectIdentifier);
+
+        if (project == null) {
+            System.out.println("Projet introuvable !");
+            return;
+        }
+
+        // Retrieve materials and labor linked to the project
+        List<Material> materials = materialService.getMaterialsByProjectId(project.getProjectId());
+        List<Labor> laborList = laborService.getLaborByProjectId(project.getProjectId());
+
+        if (materials.isEmpty() && laborList.isEmpty()) {
+            System.out.println("Aucun matériau ou main-d'œuvre associé à ce projet.");
+            return;
+        }
+
+        // Calculate total cost
+        double totalCost = calculateTotalCost(materials, laborList);
+
+        // Display the results
+        displayProjectSummary(project, materials, laborList, totalCost);
+    }
+    private static void displayProjectSummary(Project project, List<Material> materials, List<Labor> laborList, double totalCost) {
+        System.out.println("--- Détail du Projet ---");
+        System.out.println("Nom du projet : " + project.getName());
+        System.out.println("Client : " + project.getClient().getName());
+
+        // Display materials
+        System.out.println("--- Matériaux ---");
+        for (Material material : materials) {
+            System.out.println(material.getName() + ": " + material.getTotalCost() + " €");
+        }
+
+        // Display labor
+        System.out.println("--- Main-d'œuvre ---");
+        for (Labor labor : laborList) {
+            System.out.println(labor.getType() + ": " + labor.getTotalCost() + " €");
+        }
+
+        // Display total cost
+        System.out.println("Coût total estimé : " + totalCost + " €");
     }
 
-    project.recalculateTotalCost();
-}
 
 
 }
