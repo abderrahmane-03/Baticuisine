@@ -2,6 +2,7 @@ package org.example.DAO.Imp;
 
 import org.example.DAO.Inf.MaterialDAOInterface;
 import org.example.entities.Material;
+import org.example.singleton.DBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,11 +39,12 @@ public class MaterialDAO implements MaterialDAOInterface {
                 e.printStackTrace();
             }
         }
+    @Override
     public List<Material> getMaterialsByProjectId(int projectId) {
         List<Material> materials = new ArrayList<>();
         String query = "SELECT * FROM material WHERE project_id = ?";
 
-        try (Connection connection = org.example.singleton.DBConnection.getConnectionOrThrow();
+        try (Connection connection = DBConnection.getConnectionOrThrow();
              PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, projectId);
             ResultSet rs = statement.executeQuery();
@@ -58,6 +60,7 @@ public class MaterialDAO implements MaterialDAOInterface {
                 );
                 materials.add(material);
             }
+            System.out.println("Found " + materials.size() + " materials for project ID " + projectId);
         } catch (SQLException e) {
             e.printStackTrace();
         }

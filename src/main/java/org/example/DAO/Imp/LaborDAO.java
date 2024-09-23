@@ -1,6 +1,8 @@
 package org.example.DAO.Imp;
 import org.example.DAO.Inf.LaborDAOInterface;
 import org.example.entities.Labor;
+import org.example.singleton.DBConnection;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,7 +14,7 @@ import java.util.List;
 public class LaborDAO implements LaborDAOInterface {
     @Override
     public void insert(Labor labor) {
-        String query = "INSERT INTO labor (type, hourly_rate, hours_worked,productivity_factor,vatRate ) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO labor (project_id,type, hourly_rate, hours_worked,productivity_factor,vatRate ) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = org.example.singleton.DBConnection.getConnectionOrThrow();
              PreparedStatement statement = connection.prepareStatement(query)) {
             int count = 1;
@@ -27,11 +29,12 @@ public class LaborDAO implements LaborDAOInterface {
             e.printStackTrace();
         }
     }
+    @Override
     public List<Labor> getLaborByProjectId(int projectId) {
         List<Labor> laborList = new ArrayList<>();
         String query = "SELECT * FROM labor WHERE project_id = ?";
 
-        try (Connection connection = org.example.singleton.DBConnection.getConnectionOrThrow();
+        try (Connection connection = DBConnection.getConnectionOrThrow();
              PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, projectId);
             ResultSet rs = statement.executeQuery();
@@ -42,10 +45,11 @@ public class LaborDAO implements LaborDAOInterface {
                         rs.getDouble("hourly_rate"),
                         rs.getDouble("hours_worked"),
                         rs.getDouble("productivity_factor"),
-                        rs.getDouble("tax_rate")
+                        rs.getDouble("vatrate")
                 );
                 laborList.add(labor);
             }
+            System.out.println("Found " + laborList.size() + " labor entries for project ID " + projectId);
         } catch (SQLException e) {
             e.printStackTrace();
         }

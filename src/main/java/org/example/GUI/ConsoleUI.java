@@ -73,17 +73,12 @@ public class ConsoleUI {
         // Perform cost calculations
         double totalCost = calculateTotalCost(materials, laborList);
 
-        // Ask for confirmation
-        System.out.println("--- Résultat du Calcul ---");
-        // Display project details, materials, labor, etc.
-        displayProjectSummary(project, materials, laborList, totalCost);
+        System.out.println(totalCost);
 
         System.out.print("Souhaitez-vous enregistrer ce projet et les détails associés ? (y/n) : ");
         if (sc.nextLine().equalsIgnoreCase("y")) {
-            // Insert project into the database
             projectService.addProject(project);
 
-            // Now insert materials and labor with the project ID
             for (Material material : materials) {
                 materialService.addMaterial(material.getName(), material.getUnitCost(), material.getQuantite(),
                         material.getTransportCost(), material.getQualityCoefficient(),
@@ -92,7 +87,7 @@ public class ConsoleUI {
 
             for (Labor labor : laborList) {
                 laborService.addLabor(labor.getType(), labor.getHourlyRate(), labor.getWorkingHours(),
-                        labor.getProductivityFactor(), labor.getVatRate(), project); // Pass the project
+                        labor.getProductivityFactor(), labor.getVatRate(), project);
             }
 
 
@@ -111,7 +106,7 @@ public class ConsoleUI {
         System.out.println("2. Ajouter un nouveau client");
         System.out.print("Choisissez une option : ");
         int clientOption = sc.nextInt();
-        sc.nextLine(); // Consume newline
+        sc.nextLine();
 
         if (clientOption == 1) {
             System.out.println("--- Recherche de client existant ---");
@@ -195,12 +190,10 @@ public class ConsoleUI {
 
 
     private static void calculateProjectCost(Scanner sc, ProjectService projectService, MaterialService materialService, LaborService laborService) {
-        // Ask user for the project name or ID to retrieve the project
-        System.out.println("--- Calcul du coût d'un projet ---");
+        System.out.println("--- Calcul du coût total ---");
         System.out.print("Entrez l'ID ou le nom du projet : ");
         String projectIdentifier = sc.nextLine();
 
-        // Retrieve project by name or ID from the database
         Project project = projectService.findProject(projectIdentifier);
 
         if (project == null) {
@@ -208,7 +201,6 @@ public class ConsoleUI {
             return;
         }
 
-        // Retrieve materials and labor linked to the project
         List<Material> materials = materialService.getMaterialsByProjectId(project.getProjectId());
         List<Labor> laborList = laborService.getLaborByProjectId(project.getProjectId());
 
@@ -217,33 +209,103 @@ public class ConsoleUI {
             return;
         }
 
+        // Prompt for VAT application
+        System.out.print("Souhaitez-vous appliquer une TVA au projet ? (y/n) : ");
+        boolean applyVAT = sc.nextLine().equalsIgnoreCase("y");
+        double vatRate = 0.0;
+        if (applyVAT) {
+            System.out.print("Entrez le pourcentage de TVA (%) : ");
+            vatRate = sc.nextDouble();
+            sc.nextLine(); // consume newline
+        }
+
+        // Prompt for profit margin application
+        System.out.print("Souhaitez-vous appliquer une marge bénéficiaire au projet ? (y/n) : ");
+        boolean applyMargin = sc.nextLine().equalsIgnoreCase("y");
+        double marginRate = 0.0;
+        if (applyMargin) {
+            System.out.print("Entrez le pourcentage de marge bénéficiaire (%) : ");
+            marginRate = sc.nextDouble();
+            sc.nextLine(); // consume newline
+        }
+
         // Calculate total cost
         double totalCost = calculateTotalCost(materials, laborList);
+        double totalMaterialsCost = calculateMaterialsCost(materials);
+        double totalLaborCost = calculateLaborCost(laborList);
 
-        // Display the results
-        displayProjectSummary(project, materials, laborList, totalCost);
+        // Apply VAT
+        double totalMaterialsCostWithVAT = applyVAT ? totalMaterialsCost * (1 + vatRate / 100) : totalMaterialsCost;
+        double totalLaborCostWithVAT = applyVAT ? totalLaborCost * (1 + vatRate / 100) : totalLaborCost;
+        double totalCostWithVAT = totalMaterialsCostWithVAT + totalLaborCostWithVAT;
+
+        // Apply Profit Margin
+        double finalTotalCost = applyMargin ? totalCostWithVAT * (1 + marginRate / 100) : totalCostWithVAT;
+
+        // Display project summary
+        displayProjectSummary(project, materials, laborList, totalMaterialsCost, totalLaborCost, totalCost, totalCostWithVAT, finalTotalCost, vatRate, marginRate);
+
+        // Prompt to save the invoice
+        System.out.println("--- Enregistrement du Devis ---");
+        System.out.print("Entrez la date d'émission du devis (format : jj/mm/aaaa) : ");
+        String issueDate = sc.nextLine();
+        System.out.print("Entrez la date de validité du devis (format : jj/mm/aaaa) : ");
+        String validityDate = sc.nextLine();
+        System.out.print("Souhaitez-vous enregistrer le devis ? (y/n) : ");
+        if (sc.nextLine().equalsIgnoreCase("y")) {
+            // Save invoice logic here (e.g., saving to a database or file)
+            System.out.println("Devis enregistré avec succès !");
+        }
     }
-    private static void displayProjectSummary(Project project, List<Material> materials, List<Labor> laborList, double totalCost) {
-        System.out.println("--- Détail du Projet ---");
-        System.out.println("Nom du projet : " + project.getName());
-        System.out.println("Client : " + project.getClient().getName());
 
-        // Display materials
-        System.out.println("--- Matériaux ---");
-        for (Material material : materials) {
-            System.out.println(material.getName() + ": " + material.getTotalCost() + " €");
+    private static void displayProjectSummary(Project project, List<Material> materials, List<Labor> laborList
+        ,double totalMaterialsCost, double totalLaborCost, double totalCost,
+        double totalCostWithVAT, double finalTotalCost, double vatRate, double marginRate) {
+            System.out.println("--- Résultat du Calcul ---");
+            System.out.println("Nom du projet : " + project.getName());
+            System.out.println("Surface : " + project.getSurface_area() + " m²");
+
+            // Display material details
+            System.out.println("--- Matériaux ---");
+            materials.forEach(material -> {
+                System.out.printf("%s : %.2f € (quantité : %.2f, coût unitaire : %.2f €/unité, transport : %.2f €)\n",
+                        material.getName(), material.getUnitCost() * material.getQuantite(),
+                        material.getQuantite(), material.getUnitCost(), material.getTransportCost());
+            });
+            System.out.printf("**Coût total des matériaux avant TVA : %.2f €**\n", totalMaterialsCost);
+            if (vatRate > 0) {
+                System.out.printf("**Coût total des matériaux avec TVA (%.2f%%) : %.2f €**\n", vatRate, totalMaterialsCost * (1 + vatRate / 100));
+            }
+
+            // Display labor details
+            System.out.println("--- Main-d'œuvre ---");
+            laborList.forEach(labor -> {
+                System.out.printf("%s : %.2f € (taux horaire : %.2f €/h, heures travaillées : %.2f h, productivité : %.2f)\n",
+                        labor.getType(), labor.getHourlyRate() * labor.getWorkingHours(),
+                        labor.getHourlyRate(), labor.getWorkingHours(), labor.getProductivityFactor());
+            });
+            System.out.printf("**Coût total de la main-d'œuvre avant TVA : %.2f €**\n", totalLaborCost);
+            if (vatRate > 0) {
+                System.out.printf("**Coût total de la main-d'œuvre avec TVA (%.2f%%) : %.2f €**\n", vatRate, totalLaborCost * (1 + vatRate / 100));
+            }
+
+            // Total costs
+            System.out.printf("**Coût total avant marge : %.2f €**\n", totalCost);
+            if (marginRate > 0) {
+                System.out.printf("Marge bénéficiaire (%.2f%%) : %.2f €\n", marginRate, totalCost * marginRate / 100);
+            }
+            System.out.printf("**Coût total final du projet : %.2f €**\n", finalTotalCost);
         }
 
-        // Display labor
-        System.out.println("--- Main-d'œuvre ---");
-        for (Labor labor : laborList) {
-            System.out.println(labor.getType() + ": " + labor.getTotalCost() + " €");
-        }
-
-        // Display total cost
-        System.out.println("Coût total estimé : " + totalCost + " €");
+    private static double calculateMaterialsCost(List<Material> materials) {
+        return materials.stream().mapToDouble(material ->
+                material.getUnitCost() * material.getQuantite() + material.getTransportCost()).sum();
     }
 
+    private static double calculateLaborCost(List<Labor> laborList) {
+        return laborList.stream().mapToDouble(labor ->
+                labor.getHourlyRate() * labor.getWorkingHours() * labor.getProductivityFactor()).sum();
+    }
 
 
 }

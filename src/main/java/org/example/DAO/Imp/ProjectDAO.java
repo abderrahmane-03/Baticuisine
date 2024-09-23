@@ -48,16 +48,18 @@ public class ProjectDAO implements ProjectDAOInterface {
             statement.setString(1, name);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    // Retrieve the project data
                     Project project = new Project(
                             resultSet.getString("project_name"),
                             resultSet.getDouble("profit_margin"),
 
                             resultSet.getDouble("surface_area"),
-                            null// You would typically load the client as well
+                            null
 
                     );
+                    project.setProjectId(resultSet.getInt("project_id"));
                     project.setTotalCost(resultSet.getDouble("total_cost"));
+                    System.out.println("Retrieved project ID: " + project.getProjectId());
+
                     return project;
                 }
             }
