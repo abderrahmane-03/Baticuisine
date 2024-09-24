@@ -10,10 +10,6 @@ public class Validation {
         return input != null && !input.trim().isEmpty();
     }
 
-    public static boolean isPositiveDouble(double value) {
-        return value > 0;
-    }
-
     public static boolean isValidPhoneNumber(String phoneNumber) {
         return Pattern.matches("\\d{10}", phoneNumber);
     }
@@ -33,4 +29,5 @@ public class Validation {
     public static boolean isValidRange(int value, int min, int max) {
         return value >= min && value <= max;
     }
+
 }

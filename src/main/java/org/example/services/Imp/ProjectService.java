@@ -26,4 +26,8 @@ public class ProjectService implements ProjectServiceInf {
     public void displayAllProjects() {
         projectRepository.findAll().forEach(Project::displayProjectDetails);
     }
+    @Override
+    public void update(Project project){
+        projectRepository.update(project);
+    }
 }

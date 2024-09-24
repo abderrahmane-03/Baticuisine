@@ -7,4 +7,5 @@ public interface ProjectServiceInf {
     void addProject(Project project);
     Project findProject(String projectName);
     void displayAllProjects();
+    void update(Project project);
 }

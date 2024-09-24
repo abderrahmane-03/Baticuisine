@@ -4,7 +4,7 @@ import org.example.entities.*;
 import org.example.repository.Imp.*;
 import org.example.services.Imp.*;
 import org.example.services.Inf.DevisServiceInf;
-
+import org.example.utils.Validation;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -60,27 +60,26 @@ public class ConsoleUI {
 
         Client client = searchOrAddClient(sc, clientService);
 
-
         System.out.println("--- Création d'un Nouveau Projet ---");
         System.out.print("Entrez le nom du projet : ");
         String projectName = sc.nextLine();
 
-        System.out.print("Entrez la surface de la cuisine (en m²) : ");
-        double surfaceArea = sc.nextDouble();
-        sc.nextLine();
+        double surfaceArea;
+        do {
+            System.out.print("Entrez la surface de la cuisine (en m², entre 5 et 1000) : ");
+            surfaceArea = sc.nextDouble();
+            sc.nextLine();
+            if (!Validation.isValidRange((int) surfaceArea, 5, 1000)) {
+                System.out.println("La surface doit être comprise entre 5 et 1000 m². Veuillez réessayer.");
+            }
+        } while (!Validation.isValidRange((int) surfaceArea, 5, 1000));
 
-
-        Project project = new Project(projectName, 0.0,surfaceArea,client );
-
+        Project project = new Project(projectName, 0.0, surfaceArea, client);
 
         List<Material> materials = addMaterials(sc, materialService);
-
-
         List<Labor> laborList = addLabor(sc, laborService);
 
-
         double totalCost = calculateTotalCost(materials, laborList);
-
         System.out.println(totalCost);
 
         System.out.print("Souhaitez-vous enregistrer ce projet et les détails associés ? (y/n) : ");
@@ -97,7 +96,6 @@ public class ConsoleUI {
                 laborService.addLabor(labor.getType(), labor.getHourlyRate(), labor.getWorkingHours(),
                         labor.getProductivityFactor(), labor.getVatRate(), project);
             }
-
 
             System.out.println("Projet ajouté avec succès avec le client associé !");
         } else {
@@ -116,8 +114,12 @@ public class ConsoleUI {
 
         if (clientOption == 1) {
             System.out.println("--- Recherche de client existant ---");
-            System.out.print("Entrez le nom du client : ");
-            String name = sc.nextLine();
+            String name;
+            do {
+                System.out.print("Entrez le nom du client : ");
+                name = sc.nextLine();
+            } while (!Validation.isValidString(name));
+
             Client client = clientService.findClient(name);
             if (client != null) {
                 System.out.println("Client trouvé !");
@@ -132,14 +134,27 @@ public class ConsoleUI {
             }
         }
 
-        System.out.print("Entrez le nom du client : ");
-        String name = sc.nextLine();
-        System.out.print("Entrez l'adresse : ");
-        String address = sc.nextLine();
-        System.out.print("Entrez le numéro de téléphone : ");
-        String phone = sc.nextLine();
+        String name;
+        do {
+            System.out.print("Entrez le nom du client : ");
+            name = sc.nextLine();
+        } while (!Validation.isValidString(name));
+
+        String address;
+        do {
+            System.out.print("Entrez l'adresse : ");
+            address = sc.nextLine();
+        } while (!Validation.isValidString(address));
+
+        String phone;
+        do {
+            System.out.print("Entrez le numéro de téléphone : ");
+            phone = sc.nextLine();
+        } while (!Validation.isValidPhoneNumber(phone));
+
         System.out.print("Est-ce un professionnel? (y/n) : ");
         boolean isProfessional = sc.nextLine().equalsIgnoreCase("y");
+
         return clientService.addClient(name, address, phone, isProfessional);
     }
 
@@ -195,8 +210,12 @@ public class ConsoleUI {
 
     private static void calculateProjectCost(Scanner sc, ProjectService projectService, MaterialService materialService, LaborService laborService) {
         System.out.println("--- Calcul du coût total ---");
-        System.out.print("Entrez l'ID ou le nom du projet : ");
-        String projectIdentifier = sc.nextLine();
+
+        String projectIdentifier;
+        do {
+            System.out.print("Entrez l'ID ou le nom du projet : ");
+            projectIdentifier = sc.nextLine();
+        } while (!Validation.isValidString(projectIdentifier));
 
         Project project = projectService.findProject(projectIdentifier);
 
@@ -213,7 +232,6 @@ public class ConsoleUI {
             return;
         }
 
-
         System.out.print("Souhaitez-vous appliquer une TVA au projet ? (y/n) : ");
         boolean applyVAT = sc.nextLine().equalsIgnoreCase("y");
         double vatRate = 0.0;
@@ -222,7 +240,6 @@ public class ConsoleUI {
             vatRate = sc.nextDouble();
             sc.nextLine();
         }
-
 
         System.out.print("Souhaitez-vous appliquer une marge bénéficiaire au projet ? (y/n) : ");
         boolean applyMargin = sc.nextLine().equalsIgnoreCase("y");
@@ -233,16 +250,13 @@ public class ConsoleUI {
             sc.nextLine();
         }
 
-
         double totalCost = calculateTotalCost(materials, laborList);
         double totalMaterialsCost = calculateMaterialsCost(materials);
         double totalLaborCost = calculateLaborCost(laborList);
 
-
         double totalMaterialsCostWithVAT = applyVAT ? totalMaterialsCost * (1 + vatRate / 100) : totalMaterialsCost;
         double totalLaborCostWithVAT = applyVAT ? totalLaborCost * (1 + vatRate / 100) : totalLaborCost;
         double totalCostWithVAT = totalMaterialsCostWithVAT + totalLaborCostWithVAT;
-
 
         double finalTotalCost = applyMargin ? totalCostWithVAT * (1 + marginRate / 100) : totalCostWithVAT;
 
@@ -250,10 +264,17 @@ public class ConsoleUI {
         displayProjectSummary(project, materials, laborList, totalMaterialsCost, totalLaborCost, totalCost, totalCostWithVAT, finalTotalCost, vatRate, marginRate);
 
         System.out.println("--- Enregistrement du Devis ---");
-        System.out.print("Entrez la date d'émission du devis (format : jj/mm/aaaa) : ");
-        String issueDateStr = sc.nextLine();
-        System.out.print("Entrez la date de validité du devis (format : jj/mm/aaaa) : ");
-        String validityDateStr = sc.nextLine();
+
+        String issueDateStr, validityDateStr;
+        do {
+            System.out.print("Entrez la date d'émission du devis (format : jj/mm/aaaa) : ");
+            issueDateStr = sc.nextLine();
+        } while (!Validation.isValidDate(issueDateStr, "dd/MM/yyyy"));
+
+        do {
+            System.out.print("Entrez la date de validité du devis (format : jj/mm/aaaa) : ");
+            validityDateStr = sc.nextLine();
+        } while (!Validation.isValidDate(validityDateStr, "dd/MM/yyyy"));
 
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -262,10 +283,19 @@ public class ConsoleUI {
 
             System.out.print("Souhaitez-vous enregistrer le devis ? (y/n) : ");
             if (sc.nextLine().equalsIgnoreCase("y")) {
-
                 Devis devis = devisService.createDevis(finalTotalCost, issueDate, validityDate, false, project);
-
                 System.out.println("Devis enregistré avec succès !");
+                if (project != null) {
+                    // Set the new attributes
+                    project.setVatRate(vatRate);
+                    project.setBeneficiaryMargin(marginRate);
+                    project.setTotalCost(finalTotalCost);
+                    projectService.update(project);
+
+                    System.out.println("Le projet a été mis à jour avec succès.");
+                } else {
+                    System.out.println("Projet introuvable.");
+                }
             }
         } catch (ParseException e) {
             System.out.println("Erreur de format de date. Veuillez utiliser le format jj/mm/aaaa.");

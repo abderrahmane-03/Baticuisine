@@ -50,7 +50,7 @@ public class ProjectDAO implements ProjectDAOInterface {
                             resultSet.getString("project_name"),
                             resultSet.getDouble("profit_margin"),
                             resultSet.getDouble("surface_area"),
-                            null // Assuming Client object or logic to retrieve client
+                            null
                     );
                     project.setProjectId(resultSet.getInt("project_id"));
                     project.setTotalCost(resultSet.getDouble("total_cost"));
@@ -76,6 +76,7 @@ public class ProjectDAO implements ProjectDAOInterface {
                         resultSet.getDouble("profit_margin"),
                         resultSet.getDouble("surface_area"),
                         null
+
                 );
                 project.setTotalCost(resultSet.getDouble("total_cost"));
                 projects.add(project);
@@ -85,4 +86,29 @@ public class ProjectDAO implements ProjectDAOInterface {
         }
         return projects;
     }
+
+    @Override
+    public void update(Project project) {
+        String query = "UPDATE project SET tva = ?, profit_margin = ?, total_cost = ? WHERE project_id = ?"; // Fixed SQL syntax
+        try (Connection connection = DBConnection.getConnectionOrThrow();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            int count = 1;
+            statement.setDouble(count++, project.getVatRate()); // Set VAT rate
+            statement.setDouble(count++, project.getBeneficiaryMargin()); // Set profit margin
+            statement.setDouble(count++, project.getTotalCost()); // Set total cost
+            statement.setInt(count++, project.getProjectId()); // Set the project ID
+
+            int rowsUpdated = statement.executeUpdate(); // Execute the update
+            if (rowsUpdated > 0) {
+                System.out.println("Project updated successfully!");
+            } else {
+                System.out.println("No project found with the provided ID.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

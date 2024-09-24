@@ -7,4 +7,5 @@ public interface ProjectRepositoryInf {
     void save(Project project);
     Project findByName(String name);
     List<Project> findAll();
+    void update(Project project);
 }

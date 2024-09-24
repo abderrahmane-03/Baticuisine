@@ -28,4 +28,9 @@ public class ProjectRepository implements ProjectRepositoryInf {
     public List<Project> findAll() {
         return projectDAO.findAll();
     }
+    @Override
+    public void update(Project project){
+         projectDAO.update(project);
+
+    }
 }

@@ -7,4 +7,5 @@ public interface ProjectDAOInterface {
     void insert(Project project);
     Project findByName(String name);
     List<Project> findAll();
+    void update(Project project);
 }

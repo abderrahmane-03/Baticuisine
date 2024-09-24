@@ -10,20 +10,21 @@ public class Project {
     private double margeBeneficiaire;
     private double coutTotal;
     private double surfaceArea;
+    private double tva;
     private ProjectState etatProjet;
     private Client client;
     private List<Material> materials;
-    private List<Labor> labors;
-    private Devis devis;
+    private List<Labor> labors;;
 
 
     public Project(String nomProjet, double margeBeneficiaire,double surfaceArea, Client client) {
         this.nomProjet = nomProjet;
         this.margeBeneficiaire = margeBeneficiaire;
         this.surfaceArea = surfaceArea;
-        this.coutTotal = 0.0;
+        this.coutTotal = coutTotal;
         this.etatProjet = ProjectState.ONGOING;
         this.client = client;
+        this.tva = tva;
         this.materials = new ArrayList<>();
         this.labors = new ArrayList<>();
     }
@@ -38,6 +39,12 @@ public class Project {
 
     public void setProjectId(int projectId) {
         this.projectId = projectId;
+    }
+    public double getVatRate() {
+        return tva;
+    }
+    public void setVatRate(Double tva) {
+        this.tva = tva;
     }
 
     public String getName() {
@@ -88,14 +95,6 @@ public class Project {
         return labors;
     }
 
-    public Devis getDevis() {
-        return devis;
-    }
-
-    public void setDevis(Devis devis) {
-        this.devis = devis;
-    }
-
     public void addMaterial(Material material) {
         this.materials.add(material);
     }
@@ -116,7 +115,11 @@ public class Project {
 
 
     public void displayProjectDetails() {
-        return ;
+
+            System.out.println("=== Informations sur le projet ===");
+            System.out.println("Nom : " + nomProjet);
+            System.out.println("surfaceArea : " + surfaceArea+"m²");
+            System.out.println("etatProjet : " + etatProjet);
     }
 
 }
