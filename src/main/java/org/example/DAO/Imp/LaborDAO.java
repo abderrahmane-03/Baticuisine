@@ -14,10 +14,12 @@ import java.util.List;
 public class LaborDAO implements LaborDAOInterface {
     @Override
     public void insert(Labor labor) {
-        String query = "INSERT INTO labor (project_id,type, hourly_rate, hours_worked,productivity_factor,vatRate ) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO labor (project_id,type, hourly_rate, hours_worked,productivity_factor,vatRate ) VALUES (?, ?, ?, ?, ?,?)";
         try (Connection connection = org.example.singleton.DBConnection.getConnectionOrThrow();
              PreparedStatement statement = connection.prepareStatement(query)) {
             int count = 1;
+
+            statement.setInt(count++, labor.getProject().getProjectId());
             statement.setString(count++, labor.getType());
             statement.setDouble(count++, Math.round(labor.getHourlyRate() * 100.0) / 100.0);
             statement.setDouble(count++, Math.round(labor.getWorkingHours() * 100.0) / 100.0);

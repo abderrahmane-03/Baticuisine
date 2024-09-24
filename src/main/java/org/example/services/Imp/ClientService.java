@@ -1,23 +1,33 @@
 package org.example.services.Imp;
 
-import org.example.DAO.Imp.ClientDAO;
 import org.example.entities.Client;
+import org.example.repository.Imp.ClientRepository;
+import org.example.repository.Inf.ClientRepositoryInf;
+import org.example.services.Inf.ClientServiceInf;
 
-public class ClientService {
-    private final ClientDAO clientDAO;
+import java.util.List;
 
-    public ClientService() {
-        this.clientDAO = new ClientDAO();
+public class ClientService implements ClientServiceInf {
+    private final ClientRepositoryInf clientRepository;
+
+    public ClientService(ClientRepositoryInf clientRepository){
+        this.clientRepository = clientRepository;
     }
 
+    @Override
     public Client addClient(String name, String address, String phone, boolean isProfessional) {
         Client client = new Client(name, address, phone, isProfessional);
-        clientDAO.insert(client);
+        clientRepository.save(client);
         return client;
     }
 
+    @Override
     public Client findClient(String name) {
-        return clientDAO.findByName(name);
+        return clientRepository.findByName(name);
     }
 
+    @Override
+    public List<Client> getAllClients() {
+        return clientRepository.findAll();
+    }
 }

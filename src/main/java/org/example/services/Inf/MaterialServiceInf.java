@@ -2,7 +2,6 @@ package org.example.services.Inf;
 
 import org.example.entities.Material;
 import org.example.entities.Project;
-
 import java.util.List;
 
 public interface MaterialServiceInf {

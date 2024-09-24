@@ -8,16 +8,14 @@ public class Devis {
     private Date dateEmission;
     private Date dateValidite;
     private boolean accepte;
-    private Project project;  // Reference to Project
+    private Project project;
 
-    // Constructors, Getters, and Setters
-    public Devis() {}
 
     public Devis(double montantEstime, Date dateEmission, Date dateValidite, boolean accepte, Project project) {
         this.montantEstime = montantEstime;
         this.dateEmission = dateEmission;
         this.dateValidite = dateValidite;
-        this.accepte = accepte;
+        this.accepte = false;
         this.project = project;
     }
 
@@ -29,27 +27,27 @@ public class Devis {
         this.devisId = devisId;
     }
 
-    public double getMontantEstime() {
+    public double getMontantestime() {
         return montantEstime;
     }
 
-    public void setMontantEstime(double montantEstime) {
+    public void setMontantestime(double montantEstime) {
         this.montantEstime = montantEstime;
     }
 
-    public Date getDateEmission() {
-        return dateEmission;
+    public java.sql.Date getDateemission() {
+        return (java.sql.Date) dateEmission;
     }
 
-    public void setDateEmission(Date dateEmission) {
+    public void setDateemission(Date dateEmission) {
         this.dateEmission = dateEmission;
     }
 
-    public Date getDateValidite() {
-        return dateValidite;
+    public java.sql.Date getDatevalidite() {
+        return (java.sql.Date) dateValidite;
     }
 
-    public void setDateValidite(Date dateValidite) {
+    public void setDatevalidite(Date dateValidite) {
         this.dateValidite = dateValidite;
     }
 

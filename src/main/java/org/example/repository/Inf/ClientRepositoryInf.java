@@ -1,5 +1,10 @@
 package org.example.repository.Inf;
 
-public interface ClientRepositoryInf{
+import org.example.entities.Client;
+import java.util.List;
 
+public interface ClientRepositoryInf {
+    void save(Client client);
+    Client findByName(String name);
+    List<Client> findAll();
 }

@@ -14,7 +14,7 @@ public class Labor {
         this.hourlyRate = hourlyRate;
         this.hoursWorked = hoursWorked;
         this.productivityFactor = productivityFactor;
-        this.vatRate = vatRate;
+        this.vatRate = 20;
     }
 
         public double getTotalCost() {

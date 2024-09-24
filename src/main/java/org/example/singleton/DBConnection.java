@@ -13,7 +13,7 @@ public class DBConnection {
     private static final Logger LOGGER = Logger.getLogger(DBConnection.class.getName());
     private static Optional<Connection> connection = Optional.empty();
 
-    // Load environment variables
+
     private static final Dotenv dotenv = Dotenv.load();
 
     public static Connection getConnectionOrThrow() throws SQLException {
@@ -33,18 +33,5 @@ public class DBConnection {
         return connection.orElseThrow(() -> new SQLException("Unable to establish a database connection"));
     }
 
-    // Optional: Add a method to explicitly close the connection
-    public static void closeConnection() {
-        connection.ifPresent(conn -> {
-            try {
-                if (!conn.isClosed()) {
-                    conn.close();
-                    LOGGER.log(Level.INFO, "Database connection closed successfully");
-                }
-            } catch (SQLException ex) {
-                LOGGER.log(Level.SEVERE, "Failed to close the database connection", ex);
-            }
-        });
-        connection = Optional.empty();
-    }
+
 }

@@ -7,7 +7,7 @@ public class Client {
     private String telephone;
     private boolean isProfessional;
 
-    // Constructors
+
     public Client(String nom, String adresse, String telephone, boolean isProfessional) {
 
         this.nom = nom;
@@ -16,7 +16,6 @@ public class Client {
         this.isProfessional = isProfessional;
     }
 
-    // Getters and Setters
     public int getClientId() {
         return clientId;
     }

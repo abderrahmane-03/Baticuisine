@@ -44,7 +44,7 @@ public class ClientDAO implements ClientDAOInterface {
                             resultSet.getString("phone_number"),
                             resultSet.getBoolean("isprofessional")
                     );
-                    client.setClientId(resultSet.getInt("client_id")); // Make sure to set client_id here
+                    client.setClientId(resultSet.getInt("client_id"));
                     return client;
                 }
             }

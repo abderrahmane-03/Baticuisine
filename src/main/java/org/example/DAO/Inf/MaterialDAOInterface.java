@@ -1,7 +1,6 @@
 package org.example.DAO.Inf;
 
 import org.example.entities.Material;
-
 import java.util.List;
 
 public interface MaterialDAOInterface {

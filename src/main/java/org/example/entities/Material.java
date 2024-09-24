@@ -17,7 +17,7 @@ public class Material {
         this.quantity = quantity;
         this.transportCost = transportCost;
         this.qualityCoefficient = qualityCoefficient;
-        this.vatRate = vatRate;
+        this.vatRate = 20;
     }
     public String getName() {
         return name;
@@ -52,7 +52,7 @@ public class Material {
         return getTotalCost() * (1 + vatRate / 100);
     }
 
-    // Getters and display method
+
     public void displayMaterialInfo() {
         System.out.println(name + ": " + getTotalCost() + "€ (Quantity: " + quantity + ")");
     }

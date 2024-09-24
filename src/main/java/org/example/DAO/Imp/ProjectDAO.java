@@ -36,9 +36,7 @@ public class ProjectDAO implements ProjectDAOInterface {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
-
 
     @Override
     public Project findByName(String name) {
@@ -51,15 +49,11 @@ public class ProjectDAO implements ProjectDAOInterface {
                     Project project = new Project(
                             resultSet.getString("project_name"),
                             resultSet.getDouble("profit_margin"),
-
                             resultSet.getDouble("surface_area"),
-                            null
-
+                            null // Assuming Client object or logic to retrieve client
                     );
                     project.setProjectId(resultSet.getInt("project_id"));
                     project.setTotalCost(resultSet.getDouble("total_cost"));
-                    System.out.println("Retrieved project ID: " + project.getProjectId());
-
                     return project;
                 }
             }
@@ -78,14 +72,12 @@ public class ProjectDAO implements ProjectDAOInterface {
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 Project project = new Project(
-                        resultSet.getString("projectName"),
-                        resultSet.getDouble("beneficiaryMargin"),
-                        resultSet.getDouble("surfaceArea"),
-
-                        null// You would typically load the client as well
-
+                        resultSet.getString("project_name"),
+                        resultSet.getDouble("profit_margin"),
+                        resultSet.getDouble("surface_area"),
+                        null
                 );
-                project.setTotalCost(resultSet.getDouble("totalCost"));
+                project.setTotalCost(resultSet.getDouble("total_cost"));
                 projects.add(project);
             }
         } catch (SQLException e) {
