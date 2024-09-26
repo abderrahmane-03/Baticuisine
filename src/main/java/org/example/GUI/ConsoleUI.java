@@ -59,7 +59,9 @@ public class ConsoleUI {
                                          MaterialService materialService, LaborService laborService) {
 
         Client client = searchOrAddClient(sc, clientService);
-
+        if (client == null) {
+            return;
+        }
         System.out.println("--- Création d'un Nouveau Projet ---");
         System.out.print("Entrez le nom du projet : ");
         String projectName = sc.nextLine();
@@ -133,7 +135,7 @@ public class ConsoleUI {
                 System.out.println("Client non trouvé.");
             }
         }
-
+        if (clientOption == 2) {
         String name;
         do {
             System.out.print("Entrez le nom du client : ");
@@ -155,7 +157,11 @@ public class ConsoleUI {
         System.out.print("Est-ce un professionnel? (y/n) : ");
         boolean isProfessional = sc.nextLine().equalsIgnoreCase("y");
 
-        return clientService.addClient(name, address, phone, isProfessional);
+            clientService.addClient(name, address, phone, isProfessional);
+            System.out.println("Client ajouté avec succès !");
+            return null;
+    }
+        return null;
     }
 
     private static List<Material> addMaterials(Scanner sc, MaterialService materialService) {
